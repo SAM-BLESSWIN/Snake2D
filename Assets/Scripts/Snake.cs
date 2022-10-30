@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,13 +18,20 @@ public class Snake : MonoBehaviour
     [Header("Parameters")]
     [SerializeField] private float moveTimerMax =1f;
     [SerializeField] private float speed = 5f;
-    [SerializeField] private float size = 0.5f;
  
     private MoveDirection moveDirection;
+
+    //test
+    public Powerups activatedPower;
+
+    private int nitroSpeed = 7;
+
     private Vector3 direction;
-    private Vector3 pos;
+    private Vector3 spawnPosition;
     private float moveTimer;
     private List<Transform> parts;
+
+    private bool dead;
 
     private void Start()
     {
@@ -41,31 +46,41 @@ public class Snake : MonoBehaviour
 
     private void Update()
     {
+        if(dead) return;
+
         ManageInput();
 
-        moveTimer += speed * Time.deltaTime;
+        if(activatedPower == Powerups.NITRO)
+        {
+            moveTimer += nitroSpeed * Time.deltaTime;
+        }
+        else
+        {
+            moveTimer += speed * Time.deltaTime;
+        }
 
-        if (moveTimer > moveTimerMax)
+        if (moveTimer >= moveTimerMax)
         {
             for (int i = parts.Count - 1; i > 0; i--) // [n-1 to 1] move body part in reverse order except head
             {
                 parts[i].position = parts[i - 1].position;
             }
-
-            head.position += direction * size;
-            moveTimer = 0;
+            spawnPosition = head.position;
+            head.position += direction;
+            moveTimer -= moveTimerMax;
         }
 
     }
 
     public void Grow(int count)
-    {
+    {   
         for(int i=0;i<count;i++)
         {
-            Transform _body = Instantiate(body, parts[parts.Count - 1].position, Quaternion.identity, this.transform.parent);
+            Transform _body = Instantiate(body, spawnPosition, Quaternion.identity, this.transform.parent);
             parts.Add(_body);
         }
-        ScoreManager.Instance.UpdateScore(count);
+        int score = activatedPower == Powerups.SCORE_BOOSTER ? count * 2 : count;
+        ScoreManager.Instance.UpdateScore(score);
     }
 
     public void Shrink(int count)
@@ -76,7 +91,19 @@ public class Snake : MonoBehaviour
             Destroy(t.gameObject);
             parts.RemoveAt(parts.Count - 1);
         }
-        ScoreManager.Instance.UpdateScore(-count);
+        int score = activatedPower == Powerups.SCORE_BOOSTER ? count * 2 : count;
+        ScoreManager.Instance.UpdateScore(-score);
+    }
+
+    public void ActivatePower(Powerups power)
+    {
+        activatedPower = power;
+        Invoke(nameof(ResetPower), 10);
+    }
+
+    private void ResetPower()
+    {
+        activatedPower = Powerups.NONE;
     }
 
     private void ManageInput()
@@ -107,6 +134,19 @@ public class Snake : MonoBehaviour
             moveDirection = MoveDirection.RIGHT;
             direction = Vector3.right;
             head.eulerAngles = Vector3.zero;
+        }
+    }
+
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(collision.gameObject.CompareTag("Body"))
+        {
+            if (activatedPower == Powerups.SHIELD) return;
+
+            Time.timeScale = 0;
+            dead = true;
+            Debug.Log("Dead");
         }
     }
 }

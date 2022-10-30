@@ -1,11 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
 {
     public static ScoreManager Instance;
-    public int score;
+    private int score;
+    [SerializeField] private TMP_Text text_score;
 
     private void Awake()
     {
@@ -20,7 +20,12 @@ public class ScoreManager : MonoBehaviour
     }
 
     public void UpdateScore(int value)
-    {
+    { 
         score+=value;
+
+        if(score<0)
+            score=0;
+
+        text_score.text = score.ToString("00000");
     }
 }
