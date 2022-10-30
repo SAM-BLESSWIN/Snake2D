@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-enum MoveDirection
+public enum MoveDirection
 {
     LEFT,
     RIGHT,
@@ -17,21 +17,19 @@ public class Snake : MonoBehaviour
 
     [Header("Parameters")]
     [SerializeField] private float moveTimerMax =1f;
-    [SerializeField] private float speed = 5f;
- 
-    private MoveDirection moveDirection;
+    [SerializeField] private int defaultSpeed = 5;
 
-    //test
-    public Powerups activatedPower;
+    [SerializeField] protected Player player;
+    protected MoveDirection moveDirection;
+    protected Powerups activatedPower;
 
-    private int nitroSpeed = 7;
-
+    private int[] powerSpeeds = {3,4,6,7};
     private Vector3 direction;
     private Vector3 spawnPosition;
     private float moveTimer;
     private List<Transform> parts;
-
-    private bool dead;
+    protected bool dead;
+    private int speed;
 
     private void Start()
     {
@@ -42,22 +40,18 @@ public class Snake : MonoBehaviour
 
         parts = new List<Transform>();
         parts.Add(head);
+
+        speed = defaultSpeed;
     }
 
-    private void Update()
+    public virtual void Update()
     {
         if(dead) return;
 
-        ManageInput();
+        if (player == Player.Player1)
+            ManageInput();
 
-        if(activatedPower == Powerups.NITRO)
-        {
-            moveTimer += nitroSpeed * Time.deltaTime;
-        }
-        else
-        {
-            moveTimer += speed * Time.deltaTime;
-        }
+        moveTimer += speed * Time.deltaTime;
 
         if (moveTimer >= moveTimerMax)
         {
@@ -85,12 +79,6 @@ public class Snake : MonoBehaviour
 
     public void Shrink(int count)
     {
-        for (int i = 0; parts.Count > 1 && i < count ; i++)
-        {
-            Transform t = parts[parts.Count - 1];
-            Destroy(t.gameObject);
-            parts.RemoveAt(parts.Count - 1);
-        }
         int score = activatedPower == Powerups.SCORE_BOOSTER ? count * 2 : count;
         ScoreManager.Instance.UpdateScore(-score);
     }
@@ -98,55 +86,89 @@ public class Snake : MonoBehaviour
     public void ActivatePower(Powerups power)
     {
         activatedPower = power;
+
+        if (activatedPower == Powerups.SPEED)
+        {
+            speed = powerSpeeds[Random.Range(0, powerSpeeds.Length)];
+        }
+
         Invoke(nameof(ResetPower), 10);
     }
 
     private void ResetPower()
     {
+        if (activatedPower == Powerups.SPEED)
+        {
+            speed = defaultSpeed;
+        }
+
         activatedPower = Powerups.NONE;
     }
 
-    private void ManageInput()
+    protected void ManageInput()
     {
         if(Input.GetKeyDown(KeyCode.W) && moveDirection!=MoveDirection.DOWN)
         {
-            moveDirection = MoveDirection.UP;
-            direction = Vector3.up;
-            head.eulerAngles = Vector3.forward * 90;
+            MoveUP();
         }
 
         else if(Input.GetKeyDown(KeyCode.S) && moveDirection != MoveDirection.UP)
         {
-            moveDirection = MoveDirection.DOWN;
-            direction = Vector3.down;
-            head.eulerAngles = Vector3.forward * 270;
+            MoveDOWN();
         }
 
         else if (Input.GetKeyDown(KeyCode.A) && moveDirection != MoveDirection.RIGHT)
         {
-            moveDirection = MoveDirection.LEFT;
-            direction = Vector3.left;
-            head.eulerAngles = Vector3.forward * 180;
+            MoveLEFT();
         }
 
         else if (Input.GetKeyDown(KeyCode.D) && moveDirection != MoveDirection.LEFT)
         {
-            moveDirection = MoveDirection.RIGHT;
-            direction = Vector3.right;
-            head.eulerAngles = Vector3.zero;
+            MoveRIGHT();
         }
     }
 
-
-    private void OnCollisionEnter2D(Collision2D collision)
+    protected void MoveUP()
     {
-        if(collision.gameObject.CompareTag("Body"))
+        moveDirection = MoveDirection.UP;
+        direction = Vector3.up;
+        head.eulerAngles = Vector3.forward * 90;
+    }
+
+    protected void MoveDOWN()
+    {
+        moveDirection = MoveDirection.DOWN;
+        direction = Vector3.down;
+        head.eulerAngles = Vector3.forward * 270;
+    }
+
+    protected void MoveLEFT()
+    {
+        moveDirection = MoveDirection.LEFT;
+        direction = Vector3.left;
+        head.eulerAngles = Vector3.forward * 180;
+    }
+
+    protected void MoveRIGHT()
+    {
+        moveDirection = MoveDirection.RIGHT;
+        direction = Vector3.right;
+        head.eulerAngles = Vector3.zero;
+    }
+
+    public void Dead()
+    {
+        Time.timeScale = 0;
+        dead = true;
+        Debug.Log("Dead");
+    }
+
+    public virtual void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Body"))
         {
             if (activatedPower == Powerups.SHIELD) return;
-
-            Time.timeScale = 0;
-            dead = true;
-            Debug.Log("Dead");
+            Dead();
         }
     }
 }

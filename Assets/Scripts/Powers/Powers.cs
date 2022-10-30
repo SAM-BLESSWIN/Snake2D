@@ -3,7 +3,7 @@ using UnityEngine;
 public enum Powerups
 {
     NONE,
-    NITRO,
+    SPEED,
     SCORE_BOOSTER,
     SHIELD
 }

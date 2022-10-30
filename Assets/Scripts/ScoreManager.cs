@@ -4,7 +4,10 @@ using UnityEngine;
 public class ScoreManager : MonoBehaviour
 {
     public static ScoreManager Instance;
+
     private int score;
+    public int Score { get { return score; } }
+
     [SerializeField] private TMP_Text text_score;
 
     private void Awake()
