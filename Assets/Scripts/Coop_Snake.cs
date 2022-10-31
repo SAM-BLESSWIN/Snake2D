@@ -46,26 +46,29 @@ public class Coop_Snake : Snake
     {
         if (collision.gameObject.CompareTag("Body"))
         {
+            if (activatedPower == Powerups.SHIELD) return;
+
             Coop_Snake _snake = collision.transform.parent.Find("Head").GetComponent<Coop_Snake>();
             if (_snake.PlayerIndex == player) //isMine
             {
-                if (activatedPower == Powerups.SHIELD) return;
-
+                gameOverUI.SetMessage(player.ToString() + " bite himself");
                 Dead();
-                Debug.Log(player.ToString() + "Dead");
+                _snake.Dead();
             }
             else
             {
                 if (_snake.ActivatedPower == Powerups.SHIELD) return;
 
+                Dead();
                 _snake.Dead();
-                Debug.Log(_snake.PlayerIndex.ToString() + "Dead");
+                gameOverUI.SetMessage(player.ToString() + " bite "+ _snake.PlayerIndex.ToString());
             }
         }
 
         else if(collision.gameObject.CompareTag("Head"))
         {
             Dead();
+            gameOverUI.SetMessage("head clash");
         }
     }
 }

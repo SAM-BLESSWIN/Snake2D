@@ -9,6 +9,7 @@ public class ScoreManager : MonoBehaviour
     public int Score { get { return score; } }
 
     [SerializeField] private TMP_Text text_score;
+    [SerializeField] private TMP_Text text_finalScore;
 
     private void Awake()
     {
@@ -30,5 +31,10 @@ public class ScoreManager : MonoBehaviour
             score=0;
 
         text_score.text = score.ToString("00000");
+    }
+
+    public void SetFinalScore()
+    {
+        text_finalScore.text = "final score : "+score.ToString("0000");
     }
 }

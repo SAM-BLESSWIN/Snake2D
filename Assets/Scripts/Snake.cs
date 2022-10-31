@@ -14,12 +14,17 @@ public class Snake : MonoBehaviour
     [Header("References")]
     [SerializeField] private Transform head;
     [SerializeField] private Transform body;
+    [SerializeField] protected GameOverUI gameOverUI;
 
     [Header("Parameters")]
     [SerializeField] private float moveTimerMax =1f;
     [SerializeField] private int defaultSpeed = 5;
 
     [SerializeField] protected Player player;
+
+
+    [SerializeField] private Color[] powerColor;
+
     protected MoveDirection moveDirection;
     protected Powerups activatedPower;
 
@@ -86,6 +91,7 @@ public class Snake : MonoBehaviour
     public void ActivatePower(Powerups power)
     {
         activatedPower = power;
+        head.GetComponent<SpriteRenderer>().color = powerColor[(int)power];
 
         if (activatedPower == Powerups.SPEED)
         {
@@ -103,6 +109,7 @@ public class Snake : MonoBehaviour
         }
 
         activatedPower = Powerups.NONE;
+        head.GetComponent<SpriteRenderer>().color = powerColor[0];
     }
 
     protected void ManageInput()
@@ -158,9 +165,13 @@ public class Snake : MonoBehaviour
 
     public void Dead()
     {
-        Time.timeScale = 0;
         dead = true;
-        Debug.Log("Dead");
+        Invoke("EnableEndScreen", 1);
+    }
+
+    private void EnableEndScreen()
+    {
+        gameOverUI.SwitchOnGameoverPanel();
     }
 
     public virtual void OnCollisionEnter2D(Collision2D collision)
