@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -98,11 +99,13 @@ public class Snake : MonoBehaviour
             speed = powerSpeeds[Random.Range(0, powerSpeeds.Length)];
         }
 
-        Invoke(nameof(ResetPower), 10);
+        StartCoroutine(ResetPower());
     }
 
-    private void ResetPower()
+    IEnumerator ResetPower()
     {
+        yield return new WaitForSeconds(10);
+
         if (activatedPower == Powerups.SPEED)
         {
             speed = defaultSpeed;

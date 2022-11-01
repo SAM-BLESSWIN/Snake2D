@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PowerupsSpawner : MonoBehaviour
@@ -18,13 +19,19 @@ public class PowerupsSpawner : MonoBehaviour
         xLimit = Boundary.HorizontalBoundary;
         yLimit = Boundary.VerticalBoundary;
 
-        StartSpawnTimer();
-
+        ActivateSpawnTimer();
     }
 
-    public void StartSpawnTimer()
+    public void ActivateSpawnTimer()
     {
-        Invoke(nameof(SpawnPower), Random.Range(minTime, maxTime));
+        StartCoroutine(StartSpawnTimer());
+    }
+
+    IEnumerator StartSpawnTimer()
+    {
+        int ttl = Random.Range(minTime, maxTime);
+        yield return new WaitForSeconds(ttl);
+        SpawnPower();
     }
 
     private void  SpawnPower()

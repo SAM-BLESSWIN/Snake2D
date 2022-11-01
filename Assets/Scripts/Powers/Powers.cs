@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public enum Powerups
@@ -16,12 +17,13 @@ public class Powers : MonoBehaviour
 
     private void OnEnable()
     {
-        Invoke(nameof(TurnOff), ttl);
+        StartCoroutine(nameof(TurnOff));
     }
 
-    private void TurnOff()
+    IEnumerator TurnOff()
     {
-        spawner.StartSpawnTimer();
+        yield return new WaitForSeconds(ttl);
+        spawner.ActivateSpawnTimer();
         this.gameObject.SetActive(false);
     }
 
@@ -29,9 +31,8 @@ public class Powers : MonoBehaviour
     {
         if(collision.TryGetComponent<Snake>(out Snake snake))
         {
-            CancelInvoke(nameof(TurnOff));
             snake.ActivatePower(power);
-            spawner.StartSpawnTimer();
+            spawner.ActivateSpawnTimer();
             this.gameObject.SetActive(false);
         }
     }

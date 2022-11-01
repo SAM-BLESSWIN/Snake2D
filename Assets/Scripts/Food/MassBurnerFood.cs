@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -6,12 +7,16 @@ public class MassBurnerFood : Food
     [SerializeField] private int ttl = 10;
     private void Awake()
     {
-        SpawnAndStartTimer();
+        StartCoroutine(SpawnAndStartTimer());
     }
 
-    private void SpawnAndStartTimer()
+    IEnumerator SpawnAndStartTimer()
     {
-        InvokeRepeating(nameof(Spawn),0, ttl);
+        while(true)
+        {
+            yield return new WaitForSeconds(ttl);
+            Spawn();
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -19,8 +24,7 @@ public class MassBurnerFood : Food
         if (collision.transform.TryGetComponent<Snake>(out Snake snake))
         {
             snake.Shrink(value);
-            CancelInvoke();
-            SpawnAndStartTimer();
+            Spawn();
         }
     }
 }

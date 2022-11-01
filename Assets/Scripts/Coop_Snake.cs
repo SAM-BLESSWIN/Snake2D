@@ -7,7 +7,6 @@ public enum Player
 
 public class Coop_Snake : Snake
 {
-
     public Player PlayerIndex { get { return player; } }
 
     public Powerups ActivatedPower { get { return activatedPower; } }
@@ -44,11 +43,14 @@ public class Coop_Snake : Snake
     }
     public override void OnCollisionEnter2D(Collision2D collision)
     {
+        if (activatedPower == Powerups.SHIELD) return;
+
         if (collision.gameObject.CompareTag("Body"))
         {
-            if (activatedPower == Powerups.SHIELD) return;
+            Coop_Snake _snake;
+            if(!collision.transform.parent.GetChild(0).TryGetComponent<Coop_Snake>(out _snake))
+                return;
 
-            Coop_Snake _snake = collision.transform.parent.Find("Head").GetComponent<Coop_Snake>();
             if (_snake.PlayerIndex == player) //isMine
             {
                 gameOverUI.SetMessage(player.ToString() + " bite himself");
