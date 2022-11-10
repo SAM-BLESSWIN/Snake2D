@@ -36,6 +36,10 @@ public class Snake : MonoBehaviour
     private List<Transform> parts;
     protected bool dead;
     private int speed;
+    private void Awake()
+    {
+        Time.timeScale = 1;
+    }
 
     private void Start()
     {
@@ -169,12 +173,13 @@ public class Snake : MonoBehaviour
     public void Dead()
     {
         dead = true;
-        Invoke("EnableEndScreen", 1);
+        Invoke(nameof(EnableEndScreen), 1);
     }
 
     private void EnableEndScreen()
     {
         gameOverUI.SwitchOnGameoverPanel();
+        Time.timeScale = 0;
     }
 
     public virtual void OnCollisionEnter2D(Collision2D collision)

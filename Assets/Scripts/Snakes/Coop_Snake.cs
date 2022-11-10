@@ -67,7 +67,7 @@ public class Coop_Snake : Snake
             }
         }
 
-        else if(collision.gameObject.CompareTag("Head"))
+        else if(collision.gameObject.TryGetComponent(out Snake snake))
         {
             Dead();
             gameOverUI.SetMessage("head clash");
