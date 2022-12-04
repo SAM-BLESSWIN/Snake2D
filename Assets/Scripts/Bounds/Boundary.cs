@@ -19,7 +19,7 @@ public class Boundary : MonoBehaviour
 
     private void Awake()
     {
-        int size = (int)mainCamera.orthographicSize;
+        int size = 10;
         horizontalBoundary = (size * 2) - offset.x;
         verticalBoundary = size - offset.y;
     }
